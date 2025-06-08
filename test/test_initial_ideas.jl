@@ -2,10 +2,7 @@ using Ferrite
 using AlgebraicMultigrid
 
 using Ferrite, SparseArrays
-
-using Ferrite
-using SparseArrays
-using WriteVTK
+using Test
 
 # ---------------------------
 # 1. Generate 1D grid (3 elements)
@@ -89,9 +86,24 @@ K, f = assemble_global(cellvalues, K, dh)
 apply!(K, f, ch)
 u = K \ f
 
-# ---------------------------
-# 9. Export solution
-# ---------------------------
-VTKGridFile("poisson_1d_p2", dh) do vtk
-    write_solution(vtk, dh, u)
-end
+# Prolongator
+I = [1, 2, 2, 3, 4, 4, 5, 6, 6, 7];
+J = [1, 1, 2, 2, 2, 3, 3, 3, 4, 4];
+#V = [1, 0.5, 0.5, 2, 0.5, 0.5, 2, 0.5, 0.5, 1];
+V = [1, 0.5, 0.5, 2, 0.5, 0.5, 2, 0.5, 0.5, 1];
+P = sparse(I, J, V)
+R = P'
+
+## test PolyMG
+presmoother = GaussSeidel(iter = 4)
+x = zeros(size(f))
+presmoother(K, x, f)
+r_h = f - K * x
+r_2h = R * r_h
+K_2h = R * K * P
+e_2h = K_2h \ r_2h
+e_h = P * e_2h
+x += e_h
+post_smoother = GaussSeidel(iter = 4)
+post_smoother(K, x, f)
+@test x ≈ u atol = 1e-1

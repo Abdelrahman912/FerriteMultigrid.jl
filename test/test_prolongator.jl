@@ -13,7 +13,7 @@ function create_1d_1element_mass_matrix(p = 1, nqp = 2)
     Me = zeros(n_basefuncs, n_basefuncs)
     for cell in CellIterator(dh)
         reinit!(cellvalues, cell)
-        mass_matrix!(Me, cellvalues)
+        _element_mass_matrix!(Me, cellvalues)
     end
     return Me
 end
