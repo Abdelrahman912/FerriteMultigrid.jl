@@ -24,11 +24,11 @@ function _element_mass_matrix!(Me::AbstractMatrix, cv::AbstractCellValues)
     return Me
 end
 
-function _build_prolongator(
-    dh::DofHandler,
-    cv::AbstractCellValues,
-    dh_coarse::DofHandler,
-    cv_coarse::AbstractCellValues,
-)
+function _build_prolongator(fine_fespace::FESpace, coarse_fespace::FESpace)
     throw("Not implemented yet")
+end
+
+function build_prolongator(fine_fespace::FESpace, coarse_fespace::FESpace)
+    error("Not implemented yet")
+    # return P
 end

@@ -1,13 +1,9 @@
-struct FineFESpace{DH<:AbstractDofHandler,CV<:AbstractCellValues}
-    dh::DH
-    cv::CV
-end
-
 struct PMGSolver{T}
     ml::MultiLevel
     b::Vector{T}
 end
 
+## FIXME: AMGCoarseSolver is not designed properly yet
 struct AMGCoarseSolver{A<:AMGAlg,TK,TKW}<:CoarseSolver
     alg::A
     args::TK
@@ -23,20 +19,15 @@ function AMGCoarseSolver(alg::AMGAlg, args...; kwargs...)
 end
 
 
-function solve(A::AbstractMatrix, b::Vector, fe_space::FineFESpace, coarse_solver::CoarseSolver)
-    # This function will use the AMG algorithm to solve the system Ax = b
-    # using the multigrid structure defined in PMultigrid.
-    # The implementation details will depend on the specific AMG algorithm used.
-
-    # Placeholder for actual implementation
-    throw("AMG solve not implemented yet")
-
+function solve(A::AbstractMatrix, b::Vector, fe_space::FESpace, coarse_solver::CoarseSolver)
+    solver = init(A, b, fe_space, coarse_solver)
+    solve!(solver)
 end
 
-function init(A, b, fe_space::FineFESpace, coarse_solver::CoarseSolver)
-    PMGSolver(pmultigrid(A,fe_space,coarse_solver), b)
+function init(A, b, fine_fespace::FESpace, coarse_solver::CoarseSolver)
+    PMGSolver(pmultigrid(A, fine_fespace, coarse_solver), b)
 end
 
-function solve!(solt::PMGSolver) 
-    _solve(solt.ml, solt.b)   
+function solve!(solt::PMGSolver)
+    _solve(solt.ml, solt.b)
 end
