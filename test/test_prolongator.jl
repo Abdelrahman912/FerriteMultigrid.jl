@@ -33,3 +33,49 @@ end
 
     @test Me2 ≈ Me2_expected
 end
+
+@testset "Prolongator" begin
+    grid = generate_grid(Line, (3,))
+
+    # fine space
+    ip_fine = Lagrange{RefLine,2}()
+    qr_fine = QuadratureRule{RefLine}(3)
+    cv_fine = CellValues(qr_fine, ip_fine)
+    dh_fine = DofHandler(grid)
+    add!(dh_fine, :u, ip_fine)
+    close!(dh_fine)
+    fine_fespace = FESpace(dh_fine, cv_fine)
+
+    # coarse space
+    ip_coarse = Lagrange{RefLine,1}()
+    qr_coarse = QuadratureRule{RefLine}(3) # in current implementation, we use same quadrature rule
+    cv_coarse = CellValues(qr_coarse, ip_coarse)
+    dh_coarse = DofHandler(grid)
+    add!(dh_coarse, :u, ip_coarse)
+    close!(dh_coarse)
+    coarse_fespace = FESpace(dh_coarse, cv_coarse)
+
+    # test element prolongator
+    Pe = zeros(getnbasefunctions(cv_fine), getnbasefunctions(cv_coarse))
+    Me = zeros(getnbasefunctions(cv_fine), getnbasefunctions(cv_fine))
+    cell_iter = CellIterator(dh_fine)
+    cell = first(cell_iter)
+    reinit!(cv_fine, cell)
+    _element_prolongator!(Pe, Me, cv_fine, cv_coarse)
+    Pe_expected = [
+        1.0 0;
+        0.0 1.0;
+        0.5 0.5
+    ]
+    @test Pe ≈ Pe_expected
+
+
+    # test assembled prolongator
+    P = build_prolongator(fine_fespace, coarse_fespace)
+    # Prolongator
+    I = [1, 2, 3, 3, 4, 5, 5, 6, 7, 7];
+    J = [1, 2, 1, 2, 3, 2, 3, 4, 3, 4];
+    V = [1, 2, 0.5, 0.5,2, 0.5, 0.5,1,  0.5, 0.5];
+    P_expected = sparse(I, J, V)
+    @test P ≈ P_expected
+end

@@ -1,7 +1,7 @@
 ## P_ij = M^{-1}_{ij} ∫ ϕ_i(x) ⋅ ϕc_j(x) dx (ϕc is the coarse basis function)
 function _element_prolongator!(
-    Me::AbstractMatrix,
     Pe::AbstractMatrix,
+    Me::AbstractMatrix,
     fine_cv::AbstractCellValues,
     coarse_cv::AbstractCellValues,
 )
@@ -21,9 +21,16 @@ function _element_prolongator!(
     end
 
     # Invert the mass matrix to get the prolongator
-    Pe ./= _element_mass_matrix!(Me, fine_cv)
+    _element_mass_matrix!(Me, fine_cv)
+    lu_fact = lu!(Me)
+    ldiv!(Pe, lu_fact, Pe)
+    return drop_small_entries!(Pe)
+end
 
-    return Pe
+
+function drop_small_entries!(A::AbstractMatrix, tol::Float64 = 1e-10)
+    A[abs.(A) .< tol] .= 0.0
+    return A
 end
 
 ## M_{ij} = ∫ ϕ_i(x) ⋅ ϕ_j(x) dx
@@ -54,12 +61,13 @@ function build_prolongator(fine_fespace::FESpace, coarse_fespace::FESpace)
     for cell in CellIterator(fine_fespace.dh)
         reinit!(fine_fespace.cv, cell)
         reinit!(coarse_fespace.cv, cell)
-        _element_prolongator!(Me, Pe, fine_fespace.cv, coarse_fespace.cv)
+        _element_prolongator!(Pe, Me, fine_fespace.cv, coarse_fespace.cv)
         for i = 1:fine_nbasefuncs
             for j = 1:coarse_nbasefuncs
-                P[celldofs(cell)[i], celldofs(coarse_fespace.dh)[j]] += Pe[i, j]
+                P[celldofs(cell)[i], celldofs(coarse_fespace.dh,cell.cellid)[j]] += Pe[i, j]
             end
         end
     end
+    dropzeros!(P)  # Remove any zero entries to save memory
     return P
 end
