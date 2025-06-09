@@ -1,10 +1,29 @@
 ## P_ij = M^{-1}_{ij} ∫ ϕ_i(x) ⋅ ϕc_j(x) dx (ϕc is the coarse basis function)
 function _element_prolongator!(
+    Me::AbstractMatrix,
     Pe::AbstractMatrix,
-    cv::AbstractCellValues,
-    cv_coarse::AbstractCellValues,
+    fine_cv::AbstractCellValues,
+    coarse_cv::AbstractCellValues,
 )
-    throw("Not implemented yet")
+    fill!(Pe, zero(eltype(Pe)))
+    n_fine_basefuncs = getnbasefunctions(fine_cv)
+    n_coarse_basefuncs = getnbasefunctions(coarse_cv)
+
+    for q = 1:getnquadpoints(fine_cv)
+        dΩ = getdetJdV(fine_cv, q)
+        for i = 1:n_fine_basefuncs
+            δu = shape_value(fine_cv, q, i)
+            for j = 1:n_coarse_basefuncs
+                u_c = shape_value(coarse_cv, q, j)
+                Pe[i, j] += (δu ⋅ u_c) * dΩ
+            end
+        end
+    end
+
+    # Invert the mass matrix to get the prolongator
+    Pe ./= _element_mass_matrix!(Me, fine_cv)
+
+    return Pe
 end
 
 ## M_{ij} = ∫ ϕ_i(x) ⋅ ϕ_j(x) dx
@@ -17,18 +36,30 @@ function _element_mass_matrix!(Me::AbstractMatrix, cv::AbstractCellValues)
             δu = shape_value(cv, q, i)
             for j = 1:n_basefuncs
                 u = shape_value(cv, q, j)
-                Me[i, j] += (δu * u) * dΩ
+                Me[i, j] += (δu ⋅ u) * dΩ
             end
         end
     end
     return Me
 end
 
-function _build_prolongator(fine_fespace::FESpace, coarse_fespace::FESpace)
-    throw("Not implemented yet")
-end
-
 function build_prolongator(fine_fespace::FESpace, coarse_fespace::FESpace)
-    error("Not implemented yet")
-    # return P
+    fine_ndofs = ndofs(fine_fespace)
+    coarse_ndofs = ndofs(coarse_fespace)
+    P = spzeros(fine_ndofs, coarse_ndofs)
+    fine_nbasefuncs = getnbasefunctions(fine_fespace)
+    coarse_nbasefuncs = getnbasefunctions(coarse_fespace)
+    Pe = zeros(fine_nbasefuncs, coarse_nbasefuncs)
+    Me = zeros(fine_nbasefuncs, fine_nbasefuncs)
+    for cell in CellIterator(fine_fespace.dh)
+        reinit!(fine_fespace.cv, cell)
+        reinit!(coarse_fespace.cv, cell)
+        _element_prolongator!(Me, Pe, fine_fespace.cv, coarse_fespace.cv)
+        for i = 1:fine_nbasefuncs
+            for j = 1:coarse_nbasefuncs
+                P[celldofs(cell)[i], celldofs(coarse_fespace.dh)[j]] += Pe[i, j]
+            end
+        end
+    end
+    return P
 end

@@ -7,6 +7,8 @@ end
 order(fe_space::FESpace) = fe_space.cv.fun_values.ip |> getorder
 interpolation(fe_space::FESpace) = fe_space.cv.fun_values.ip
 quadraturerule(fe_space::FESpace) = fe_space.cv.qr
+ndofs(fe_space::FESpace) = ndofs(fe_space.dh)
+getnbasefunctions(fe_space::FESpace) = getnbasefunctions(fe_space.cv)
 
 function coarsen_order(fe_space::FESpace, p::Int)
     dh = fe_space.dh
