@@ -64,7 +64,8 @@ function build_prolongator(fine_fespace::FESpace, coarse_fespace::FESpace)
         _element_prolongator!(Pe, Me, fine_fespace.cv, coarse_fespace.cv)
         for i = 1:fine_nbasefuncs
             for j = 1:coarse_nbasefuncs
-                P[celldofs(cell)[i], celldofs(coarse_fespace.dh,cell.cellid)[j]] += Pe[i, j]
+                P[celldofs(cell)[i], celldofs(coarse_fespace.dh, cell.cellid)[j]] +=
+                    Pe[i, j]
             end
         end
     end

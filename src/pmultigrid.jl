@@ -1,10 +1,11 @@
 function pmultigrid(
     A::TA,
     fe_space::FESpace,
+    ::Type{Val{bs}} = Val{1};
     presmoother = GaussSeidel(),
     postsmoother = GaussSeidel(),
-    coarse_solver::CoarseSolver = Pinv, # TODO: remove Pinv and add AMGCoarseSolver
-) where {TA<:AbstractMatrix}
+    coarse_solver = Pinv, # TODO: remove Pinv and add AMGCoarseSolver
+) where {T,V,bs,TA<:SparseMatrixCSC{T,V}}
 
     levels = Vector{Level{TA,TA,Adjoint{T,TA}}}()
     w = MultiLevelWorkspace(Val{bs}, eltype(A))
@@ -19,7 +20,7 @@ function pmultigrid(
         coarse_fespace = coarsen_order(fine_fespace, p)
         push!(fespaces, coarse_fespace)
 
-        A = _extend_hierarchy!(levels, fine_fespace, coarse_fespace)
+        A = _extend_hierarchy!(levels, fine_fespace, coarse_fespace, A)
 
         coarse_x!(w, size(A, 1))
         coarse_b!(w, size(A, 1))
@@ -28,7 +29,7 @@ function pmultigrid(
     return MultiLevel(levels, A, coarse_solver(A), presmoother, postsmoother, w)
 end
 
-function extend_hierarchy!(levels, fine_fespace::FESpace, coarse_fespace::FESpace, A)
+function _extend_hierarchy!(levels, fine_fespace::FESpace, coarse_fespace::FESpace, A)
     P = build_prolongator(fine_fespace, coarse_fespace)
     R = P' # TODO: do we need other method to compute R?
     push!(levels, Level(A, P, R))

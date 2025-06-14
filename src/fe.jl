@@ -14,10 +14,10 @@ function coarsen_order(fe_space::FESpace, p::Int)
     dh = fe_space.dh
     cv = fe_space.cv
 
-    @assert 1 ≤ p < getorder(cv) "Invalid order $p for coarsening"
+    @assert 1 ≤ p < order(fe_space) "Invalid order $p for coarsening"
 
     # FIXME: more robust way to handle this?
-    qr = fe_spqace |> quadraturerule
+    qr = fe_space |> quadraturerule
     ip = _new_coarse_ip(fe_space |> interpolation, p)
     coarse_cv = CellValues(qr, ip)
     coarse_dh = DofHandler(dh.grid)
