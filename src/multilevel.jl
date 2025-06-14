@@ -35,5 +35,5 @@ function init(A, b, fine_fespace::FESpace#=, coarse_solver::CoarseSolver=#)
 end
 
 function solve!(solt::PMGSolver)
-    _solve(solt.ml, solt.b)
+    _solve(solt.ml, solt.b;log=true, reltol=1e-10 )
 end
