@@ -4,14 +4,20 @@ struct PMGSolver{T}
 end
 
 ## FIXME: AMGCoarseSolver is not designed properly yet
-struct AMGCoarseSolver{A<:AMGAlg,TK,TKW}<:CoarseSolver
-    alg::A
-    args::TK
-    kwargs::TKW
+# struct AMGCoarseSolver{A<:AMGAlg,TK,TKW}<:CoarseSolver
+#     alg::A
+#     args::TK
+#     kwargs::TKW
+# end
+
+struct AMGCoarseSolver{TA}<:CoarseSolver
+    A::TA
 end
 
-function (amg::AMGCoarseSolver)(A::AbstractMatrix, b::Vector)
-    solve(A, b, amg.alg, amg.args...; amg.kwargs...)
+function (amg::AMGCoarseSolver)(x::Vector, b::Vector)
+    #solve(A, b, amg.alg, amg.args...; amg.kwargs...)
+    x_amg = AlgebraicMultigrid.solve(amg.A, b, SmoothedAggregationAMG())
+    x .= x_amg
 end
 
 function AMGCoarseSolver(alg::AMGAlg, args...; kwargs...)

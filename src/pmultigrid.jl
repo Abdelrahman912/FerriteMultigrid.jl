@@ -4,7 +4,7 @@ function pmultigrid(
     ::Type{Val{bs}} = Val{1};
     presmoother = GaussSeidel(),
     postsmoother = GaussSeidel(),
-    coarse_solver = Pinv, # TODO: remove Pinv and add AMGCoarseSolver
+    coarse_solver = AMGCoarseSolver, # TODO: remove Pinv and add AMGCoarseSolver
 ) where {T,V,bs,TA<:SparseMatrixCSC{T,V}}
 
     levels = Vector{Level{TA,TA,Adjoint{T,TA}}}()
@@ -33,7 +33,9 @@ function _extend_hierarchy!(levels, fine_fespace::FESpace, coarse_fespace::FESpa
     P = build_prolongator(fine_fespace, coarse_fespace)
     R = P' # TODO: do we need other method to compute R?
     push!(levels, Level(A, P, R))
-    A = R * A * P
+    #A = R * A * P # Galerikn projection
+    
+    # rediscretization approach
     dropzeros!(A)
     return A
 end
