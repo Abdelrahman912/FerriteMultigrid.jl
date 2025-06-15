@@ -1,8 +1,10 @@
 module PolynomialMultigrid
 
 using Reexport
+import Base: *
+
 using Ferrite
-import Ferrite: getorder, AbstractDofHandler
+import Ferrite: getorder, AbstractDofHandler, AbstractCell, AbstractRefShape
 @reexport using AlgebraicMultigrid
 import AlgebraicMultigrid:
     AMGAlg,
@@ -19,11 +21,12 @@ using LinearAlgebra
 using SparseArrays
 
 include("fe.jl")
+include("multigrid_problems.jl")
 include("prolongator.jl")
 include("pmultigrid.jl")
 include("multilevel.jl")
 include("gallery.jl")
 
-export FESpace
+export FESpace, DiffusionMultigrid, ConstantCoefficient
 
 end

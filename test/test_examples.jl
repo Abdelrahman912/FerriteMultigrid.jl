@@ -1,11 +1,8 @@
 @testset "Poisson Equation Example" begin
-    K, f, fe_space = poisson(3, 2, 3)
+    K, f, fe_space = poisson(100, 2, 3)
+    diff_problem = DiffusionMultigrid(1.0)
     u = K\f
-    x = solve(K, f, fe_space)
+    x, res = solve(K, f, diff_problem, fe_space)
     @test x ≈ u
 end
 
-K, f, fe_space = poisson(100, 2, 3)
-u = K\f
-x,res = solve(K, f, fe_space)
-@test x ≈ u
