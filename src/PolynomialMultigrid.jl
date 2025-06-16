@@ -4,6 +4,7 @@ using Reexport
 using Ferrite
 import Ferrite: getorder, AbstractDofHandler
 @reexport using AlgebraicMultigrid
+import AlgebraicMultigrid as AMG
 import AlgebraicMultigrid:
     AMGAlg,
     Level,
@@ -24,6 +25,6 @@ include("pmultigrid.jl")
 include("multilevel.jl")
 include("gallery.jl")
 
-export FESpace
+export FESpace, SmoothedAggregationCoarseSolver, RugeStubenCoarseSolver
 
 end
