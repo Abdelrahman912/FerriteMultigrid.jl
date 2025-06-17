@@ -1,6 +1,6 @@
-name = "PolynomialMultigrid"
+name = "FerriteMultigrid"
 uuid = "69a0a054-a29c-4d77-8818-cd7ec12cfcdc"
-authors = ["Abdelrahman Fathy Abdelrahman"]
+authors = ["Abdelrahman F. Abdelrahman"]
 version = "1.0.0-DEV"
 
 [deps]
