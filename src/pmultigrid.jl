@@ -21,10 +21,12 @@ struct PMultigridConfiguration{TC<:AbstractCoarseningStrategy, TP<:AbstractProje
     projection_strategy::TP
 end
 
+pmultigrid_config() = PMultigridConfiguration(Galerkin(), DirectProjection())
+
 function pmultigrid(
     A::TA,
     fe_space::FESpace,
-    pgrid_config::PMultigridConfiguration = PMultigridConfiguration(Galerkin(), DirectProjection()),
+    pgrid_config::PMultigridConfiguration ,
     ::Type{Val{bs}} = Val{1};
     presmoother = GaussSeidel(),
     postsmoother = GaussSeidel(),
@@ -35,16 +37,18 @@ function pmultigrid(
     w = MultiLevelWorkspace(Val{bs}, eltype(A))
     residual!(w, size(A, 1))
     
-    fine_p = fe_space |> order
+    p = fe_space |> order
     fespaces = Vector{FESpace}()
     push!(fespaces, fe_space)
 
     ps = pgrid_config.projection_strategy
     cs = pgrid_config.coarsening_strategy
-    step  = _calculate_step(ps, fine_p)
-    p = fine_p - step
+    step  = _calculate_step(ps, p)
 
-    while p >= 1
+    while p > 1
+        # reduce the polynomial order
+        p = p - step > 1 ? p - step : 1
+
         fine_fespace = fespaces[end]
         coarse_fespace = coarsen_order(fine_fespace, p)
         push!(fespaces, coarse_fespace)
@@ -55,8 +59,7 @@ function pmultigrid(
         coarse_b!(w, size(A, 1))
         residual!(w, size(A, 1))
 
-        # reduce the polynomial order
-        p = p - step > 1 ? p - step : 1
+       
     end
     return MultiLevel(levels, A, coarse_solver(A), presmoother, postsmoother, w)
 end

@@ -27,6 +27,14 @@ include("pmultigrid.jl")
 include("multilevel.jl")
 include("gallery.jl")
 
-export FESpace, DiffusionMultigrid, ConstantCoefficient
+export 
+    FESpace,
+    DiffusionMultigrid, 
+    ConstantCoefficient, 
+    PMultigridConfiguration, 
+    Galerkin,
+    Rediscretization, 
+    DirectProjection, 
+    StepProjection
 
 end
