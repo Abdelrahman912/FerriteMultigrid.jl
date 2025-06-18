@@ -84,7 +84,7 @@ end
 
 function _calculate_step(ps::StepProjection, p::Int) 
     step = ps.step
-    step => p && error("Step must be less than the polynomial order $p")
+    step ≥ p && error("Step must be less than the polynomial order $p")
     return step
 end
 
