@@ -1,42 +1,89 @@
+## defines how we obtain A operator for the coarse grid
+abstract type AbstractCoarseningStrategy end
+struct Galerkin <: AbstractCoarseningStrategy end
+struct Rediscretization{TP <: AbstractPMultigrid} <: AbstractCoarseningStrategy
+    problem::TP
+end
+
+## defines how we project from fine to coarse grid
+abstract type AbstractProjectionStrategy end
+struct DirectProjection <: AbstractProjectionStrategy end
+struct StepProjection <: AbstractProjectionStrategy 
+    step::Int
+    function StepProjection(step::Int)
+        step < 1 && error("Step must be greater than or equal to 1")
+        return new(step)
+    end
+end
+
+struct PMultigridConfiguration{TC<:AbstractCoarseningStrategy, TP<:AbstractProjectionStrategy}
+    coarsening_strategy::TC
+    projection_strategy::TP
+end
+
 function pmultigrid(
     A::TA,
-    problem::AbstractPMultigrid,
     fe_space::FESpace,
+    pgrid_config::PMultigridConfiguration = PMultigridConfiguration(Galerkin(), DirectProjection()),
     ::Type{Val{bs}} = Val{1};
     presmoother = GaussSeidel(),
     postsmoother = GaussSeidel(),
-    coarse_solver = AMGCoarseSolver, # TODO: remove Pinv and add AMGCoarseSolver
+    coarse_solver = AMGCoarseSolver,
 ) where {T,V,bs,TA<:SparseMatrixCSC{T,V}}
 
     levels = Vector{Level{TA,TA,Adjoint{T,TA}}}()
     w = MultiLevelWorkspace(Val{bs}, eltype(A))
     residual!(w, size(A, 1))
+    
     fine_p = fe_space |> order
-
     fespaces = Vector{FESpace}()
     push!(fespaces, fe_space)
 
-    for p = (fine_p-1):-1:1
+    ps = pgrid_config.projection_strategy
+    cs = pgrid_config.coarsening_strategy
+    step  = _calculate_step(ps, fine_p)
+    p = fine_p - step
+
+    while p >= 1
         fine_fespace = fespaces[end]
         coarse_fespace = coarsen_order(fine_fespace, p)
         push!(fespaces, coarse_fespace)
 
-        A = _extend_hierarchy!(levels, fine_fespace, coarse_fespace, A, problem)
+        A = _extend_hierarchy!(levels, fine_fespace, coarse_fespace, A, cs)
 
         coarse_x!(w, size(A, 1))
         coarse_b!(w, size(A, 1))
         residual!(w, size(A, 1))
+
+        # reduce the polynomial order
+        p = p - step > 1 ? p - step : 1
     end
     return MultiLevel(levels, A, coarse_solver(A), presmoother, postsmoother, w)
 end
 
-function _extend_hierarchy!(levels, fine_fespace::FESpace, coarse_fespace::FESpace, A, problem::AbstractPMultigrid)
+function _extend_hierarchy!(levels, fine_fespace::FESpace, coarse_fespace::FESpace, A, ::Galerkin)
     P = build_prolongator(fine_fespace, coarse_fespace)
     R = P' # TODO: do we need other method to compute R?
     push!(levels, Level(A, P, R))
-    #A = R * A * P # Galerikn projection
+    A = R * A * P # Galerikn projection
+    return A
+end
 
-    # rediscretization approach
+function _extend_hierarchy!(levels, fine_fespace::FESpace, coarse_fespace::FESpace, A, cs::Rediscretization)
+    P = build_prolongator(fine_fespace, coarse_fespace)
+    R = P' # TODO: do we need other method to compute R?
+    push!(levels, Level(A, P, R))
+
+    problem = cs.problem
     A = assemble(problem, coarse_fespace)
     return A
 end
+
+function _calculate_step(ps::StepProjection, p::Int) 
+    step = ps.step
+    step => p && error("Step must be less than the polynomial order $p")
+    return step
+end
+
+_calculate_step(::DirectProjection, fine_p::Int) = fine_p - 1
+
