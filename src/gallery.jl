@@ -1,8 +1,29 @@
 ## 1D poisson equation with Dirichlet boundary conditions ##
-function poisson(N, p, nqr)
-    grid = generate_grid(Line, (N,))
-    ip = Lagrange{RefLine, p}() #p2
-    qr = QuadratureRule{RefLine}(nqr)  
+function poisson(N::Int64, p::Int, nqr::Int)
+    sz = (N,)
+    ∂Ω_f = grid -> union(
+        getfacetset(grid, "left"),
+        getfacetset(grid, "right")
+    )
+    return _poisson(sz, p, nqr,Line, RefLine, ∂Ω_f)
+end
+
+## 2D poisson equation with Dirichlet boundary conditions ##
+function poisson(sz::NTuple{2,Int64}, p::Int, nqr::Int)
+    ∂Ω_f = grid -> union(
+        getfacetset(grid, "left"),
+        getfacetset(grid, "right"),
+        getfacetset(grid, "bottom"),
+        getfacetset(grid, "top")
+    )
+    return _poisson(sz, p, nqr,Quadrilateral, RefQuadrilateral, ∂Ω_f)
+end
+
+
+function _poisson(sz::NTuple{N,Int}, p, nqr, celltype::Type{<:AbstractCell}, refshapetype::Type{<:AbstractRefShape}, ∂Ω_f) where {N}
+    grid = generate_grid(celltype, sz)
+    ip = Lagrange{refshapetype, p}() 
+    qr = QuadratureRule{refshapetype}(nqr)  
     cellvalues = CellValues(qr, ip)
 
     dh = DofHandler(grid)
@@ -13,10 +34,7 @@ function poisson(N, p, nqr)
 
     ch = ConstraintHandler(dh)
 
-    ∂Ω = union(
-        getfacetset(grid, "left"),
-        getfacetset(grid, "right")
-    )
+    ∂Ω = ∂Ω_f(grid)
 
     dbc = Dirichlet(:u, ∂Ω, (x, t) -> 0.0)
     add!(ch, dbc)
@@ -25,7 +43,7 @@ function poisson(N, p, nqr)
     K, f = _assemble_global(cellvalues, K, dh)
     apply!(K, f, ch)
 
-    fe_space = FESpace(dh, cellvalues)
+    fe_space = FESpace(dh, cellvalues, ch)
     return K, f, fe_space
 end
 
