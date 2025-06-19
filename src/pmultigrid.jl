@@ -33,7 +33,7 @@ function _extend_hierarchy!(levels, fine_fespace::FESpace, coarse_fespace::FESpa
     P = build_prolongator(fine_fespace, coarse_fespace)
     R = P' # TODO: do we need other method to compute R?
     push!(levels, Level(A, P, R))
-    #A = R * A * P # Galerikn projection
+    A = R * A * P # Galerikn projection
     
     # rediscretization approach
     dropzeros!(A)
