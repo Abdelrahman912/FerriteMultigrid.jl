@@ -1,4 +1,4 @@
-module PolynomialMultigrid
+module FerriteMultigrid
 
 using Reexport
 using Ferrite
