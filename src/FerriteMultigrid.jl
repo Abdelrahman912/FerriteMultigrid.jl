@@ -25,6 +25,6 @@ include("pmultigrid.jl")
 include("multilevel.jl")
 include("gallery.jl")
 
-export FESpace, SmoothedAggregationCoarseSolver, RugeStubenCoarseSolver
+export FESpace, SmoothedAggregationCoarseSolver, RugeStubenCoarseSolver, Pinv
 
 end

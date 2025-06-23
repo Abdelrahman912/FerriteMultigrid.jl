@@ -1,10 +1,10 @@
 function pmultigrid(
     A::TA,
     fe_space::FESpace,
+    pcoarse_solver , 
     ::Type{Val{bs}} = Val{1};
     presmoother = GaussSeidel(),
     postsmoother = GaussSeidel(),
-    pcoarse_solver = coarse_A -> AMGCoarseSolver(coarse_A, SmoothedAggregationAMG()),
     kwargs...) where {T,V,bs,TA<:SparseMatrixCSC{T,V}}
 
     levels = Vector{Level{TA,TA,Adjoint{T,TA}}}()
