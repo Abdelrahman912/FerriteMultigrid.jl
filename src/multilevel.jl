@@ -25,11 +25,11 @@ struct AMGCoarseSolver{TA,TG<:AMGAlg,TK,TKW} <: CoarseSolver
 end
 
 function (sa::SmoothedAggregationCoarseSolver)(A)
-    return AMGCoarseSolver(A, SmoothedAggregationAMG(), sa.args...; sa.kwargs...)
+    return AMGCoarseSolver(A, SmoothedAggregationAMG(), sa.args; sa.kwargs)
 end
 
 function (rs::RugeStubenCoarseSolver)(A)
-    return AMGCoarseSolver(A, RugeStubenAMG(), rs.args...; rs.kwargs...)
+    return AMGCoarseSolver(A, RugeStubenAMG(), rs.args; rs.kwargs)
 end
 
 function (amg::AMGCoarseSolver)(x::Vector, b::Vector)
@@ -48,13 +48,13 @@ function solve(A::AbstractMatrix, b::Vector, fe_space::FESpace, pcoarse_solverty
 end
 
 function init(A, b, fine_fespace::FESpace , pcoarse_solvertype = SmoothedAggregationCoarseSolver, args...; kwargs...)
-    PMGSolver(pmultigrid(A, fine_fespace,pcoarse_solver = _setup_caorse_solver(pcoarse_solvertype,args...;kwargs...),args...;kwargs...), b)
+    PMGSolver(pmultigrid(A, fine_fespace, _setup_coarse_solver(pcoarse_solvertype,args...;kwargs...),args...;kwargs...), b)
 end
 
 function solve!(solt::PMGSolver, args...; kwargs...)
     _solve(solt.ml, solt.b, args...; kwargs...)
 end
 
-_setup_caorse_solver(solvertype ,args...;kwargs...) = solvertype
-_setup_caorse_solver(solvertype::Type{<:SmoothedAggregationCoarseSolver}, args...; kwargs...) =  SmoothedAggregationCoarseSolver(args..., kwargs...)
-_setup_caorse_solver(solvertype::Type{<:RugeStubenCoarseSolver}, args...; kwargs...) =  RugeStubenCoarseSolver(args..., kwargs...)
+_setup_coarse_solver(solvertype ,args...;kwargs...) = solvertype
+_setup_coarse_solver(solvertype::Type{<:SmoothedAggregationCoarseSolver}, args...; kwargs...) =  SmoothedAggregationCoarseSolver(args..., kwargs...)
+_setup_coarse_solver(solvertype::Type{<:RugeStubenCoarseSolver}, args...; kwargs...) =  RugeStubenCoarseSolver(args..., kwargs...)
