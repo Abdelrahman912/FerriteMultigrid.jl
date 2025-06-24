@@ -21,15 +21,7 @@ const is_ci = haskey(ENV, "GITHUB_ACTIONS")
 
 # Build documentation.
 @timeit dto "makedocs" makedocs(
-    format = Documenter.HTML(
-        assets = [
-            "assets/custom.css",
-            "assets/citations.css",
-            # "assets/favicon.ico"
-        ],
-        # canonical = "https://localhost/",
-        collapselevel = 1,
-    ),
+    format = Documenter.HTML(),
     sitename = "FerriteMultigrid.jl",
     doctest = false,
     warnonly = true,
@@ -42,5 +34,15 @@ const is_ci = haskey(ENV, "GITHUB_ACTIONS")
     #     bibtex_plugin,
     # ]
 )
+
+# Deploy built documentation (only if not liveserver)
+if !liveserver
+    @timeit dto "deploydocs" deploydocs(
+        repo = "github.com/Abdelrahman912/FerriteMultigrid.jl.git",
+        devbranch = "main",  # adjust if your default branch is different
+        push_preview = true
+    )
+end
+
 
 print_timer(dto)
