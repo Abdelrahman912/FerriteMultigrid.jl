@@ -1,11 +1,11 @@
 function pmultigrid(
     A::TA,
     fe_space::FESpace,
+    pcoarse_solver , 
     ::Type{Val{bs}} = Val{1};
     presmoother = GaussSeidel(),
     postsmoother = GaussSeidel(),
-    coarse_solver = AMGCoarseSolver, # TODO: remove Pinv and add AMGCoarseSolver
-) where {T,V,bs,TA<:SparseMatrixCSC{T,V}}
+    kwargs...) where {T,V,bs,TA<:SparseMatrixCSC{T,V}}
 
     levels = Vector{Level{TA,TA,Adjoint{T,TA}}}()
     w = MultiLevelWorkspace(Val{bs}, eltype(A))
@@ -26,7 +26,7 @@ function pmultigrid(
         coarse_b!(w, size(A, 1))
         residual!(w, size(A, 1))
     end
-    return MultiLevel(levels, A, coarse_solver(A), presmoother, postsmoother, w)
+    return MultiLevel(levels, A, pcoarse_solver(A), presmoother, postsmoother, w)
 end
 
 function _extend_hierarchy!(levels, fine_fespace::FESpace, coarse_fespace::FESpace, A)
