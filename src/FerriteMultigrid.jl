@@ -7,7 +7,7 @@ using SparseArrays
 import SparseArrays: AbstractSparseMatrixCSC
 @reexport import CommonSolve: solve, solve!, init
 using Ferrite
-import Ferrite: getorder, AbstractDofHandler
+import Ferrite: getorder, AbstractDofHandler, reinit!
 @reexport using AlgebraicMultigrid
 import AlgebraicMultigrid as AMG
 import AlgebraicMultigrid:
