@@ -1,6 +1,11 @@
 module FerriteMultigrid
 
 using Reexport
+using LinearAlgebra
+import LinearSolve
+using SparseArrays
+import SparseArrays: AbstractSparseMatrixCSC
+@reexport import CommonSolve: solve, solve!, init
 using Ferrite
 import Ferrite: getorder, AbstractDofHandler
 @reexport using AlgebraicMultigrid
@@ -16,15 +21,19 @@ import AlgebraicMultigrid:
     Pinv,
     _solve,
     MultiLevelWorkspace
-using LinearAlgebra
-using SparseArrays
 
 include("fe.jl")
 include("prolongator.jl")
 include("pmultigrid.jl")
 include("multilevel.jl")
 include("gallery.jl")
+include("precs.jl")
 
-export FESpace, SmoothedAggregationCoarseSolver, RugeStubenCoarseSolver, Pinv
+export 
+    FESpace, 
+    SmoothedAggregationCoarseSolver, 
+    RugeStubenCoarseSolver, 
+    Pinv,
+    PolynomialMultigridPreconBuilder
 
 end

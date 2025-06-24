@@ -48,13 +48,13 @@ function solve(A::AbstractMatrix, b::Vector, fe_space::FESpace, pcoarse_solverty
 end
 
 function init(A, b, fine_fespace::FESpace , pcoarse_solvertype = SmoothedAggregationCoarseSolver, args...; kwargs...)
-    PMGSolver(pmultigrid(A, fine_fespace, _setup_coarse_solver(pcoarse_solvertype,args...;kwargs...),args...;kwargs...), b)
+    PMGSolver(pmultigrid(A, fine_fespace, setup_coarse_solver(pcoarse_solvertype,args...;kwargs...),args...;kwargs...), b)
 end
 
 function solve!(solt::PMGSolver, args...; kwargs...)
     _solve(solt.ml, solt.b, args...; kwargs...)
 end
 
-_setup_coarse_solver(solvertype ,args...;kwargs...) = solvertype
-_setup_coarse_solver(solvertype::Type{<:SmoothedAggregationCoarseSolver}, args...; kwargs...) =  SmoothedAggregationCoarseSolver(args..., kwargs...)
-_setup_coarse_solver(solvertype::Type{<:RugeStubenCoarseSolver}, args...; kwargs...) =  RugeStubenCoarseSolver(args..., kwargs...)
+setup_coarse_solver(solvertype ,args...;kwargs...) = solvertype
+setup_coarse_solver(solvertype::Type{<:SmoothedAggregationCoarseSolver}, args...; kwargs...) =  SmoothedAggregationCoarseSolver(args..., kwargs...)
+setup_coarse_solver(solvertype::Type{<:RugeStubenCoarseSolver}, args...; kwargs...) =  RugeStubenCoarseSolver(args..., kwargs...)
