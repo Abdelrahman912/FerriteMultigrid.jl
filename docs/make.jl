@@ -39,7 +39,7 @@ const is_ci = haskey(ENV, "GITHUB_ACTIONS")
 if !liveserver
     @timeit dto "deploydocs" deploydocs(
         repo = "github.com/Abdelrahman912/FerriteMultigrid.jl.git",
-        devbranch = "main",  # adjust if your default branch is different
+        devbranch = "main",  
         push_preview = true
     )
 end
