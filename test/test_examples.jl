@@ -3,7 +3,7 @@
         pmultigrid_config(), 
         pmultigrid_config(coarse_strategy = Rediscretization(DiffusionMultigrid(1.0))),
         pmultigrid_config(proj_strategy = StepProjection(1)),
-        PMultigridConfiguration(coarse_strategy = Rediscretization(DiffusionMultigrid(1.0)), proj_strategy = StepProjection(1)),
+        pmultigrid_config(coarse_strategy = Rediscretization(DiffusionMultigrid(1.0)), proj_strategy = StepProjection(1)),
     ]
     ## 1D Poisson equation example ##
     for config in configs

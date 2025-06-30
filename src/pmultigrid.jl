@@ -41,7 +41,7 @@ function pmultigrid(
     fespaces = Vector{FESpace}()
     push!(fespaces, fe_space)
 
-    ps = pgrid_config.projection_strategy
+    ps = pgrid_config.proj_strategy
     cs = pgrid_config.coarse_strategy
     step  = _calculate_step(ps, p)
 
