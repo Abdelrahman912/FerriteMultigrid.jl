@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.3"
+julia_version = "1.11.0"
 manifest_format = "2.0"
-project_hash = "03462db3583c49c171e09d738460737c9f9075b7"
+project_hash = "ff473dfae1b60d19df34a4cbceab6fc729cb9657"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "be7ae030256b8ef14a441726c4c37766b90b93a3"
@@ -633,6 +633,12 @@ version = "3.18.2"
     RecursiveFactorization = "f2c3362d-daeb-58d1-803e-2bc74f2840b4"
     SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
     Sparspak = "e56a9233-b9d6-4f03-8d0f-1825330902ac"
+
+[[deps.Literate]]
+deps = ["Base64", "IOCapture", "JSON", "REPL"]
+git-tree-sha1 = "da046be6d63304f7ba9c1bb04820fb306ba1ab12"
+uuid = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+version = "2.20.1"
 
 [[deps.LiveServer]]
 deps = ["HTTP", "LoggingExtras", "MIMEs", "Sockets", "Test"]
