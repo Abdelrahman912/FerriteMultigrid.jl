@@ -17,11 +17,11 @@ struct StepProjection <: AbstractProjectionStrategy
 end
 
 struct PMultigridConfiguration{TC<:AbstractCoarseningStrategy, TP<:AbstractProjectionStrategy}
-    coarsening_strategy::TC
-    projection_strategy::TP
+    coarse_strategy::TC # coarsening strategy
+    proj_strategy::TP # projection strategy
 end
 
-pmultigrid_config() = PMultigridConfiguration(Galerkin(), DirectProjection())
+pmultigrid_config(;coarse_strategy = Galerkin(), proj_strategy = DirectProjection()) = PMultigridConfiguration(coarse_strategy, proj_strategy)
 
 function pmultigrid(
     A::TA,
@@ -42,7 +42,7 @@ function pmultigrid(
     push!(fespaces, fe_space)
 
     ps = pgrid_config.projection_strategy
-    cs = pgrid_config.coarsening_strategy
+    cs = pgrid_config.coarse_strategy
     step  = _calculate_step(ps, p)
 
     while p > 1

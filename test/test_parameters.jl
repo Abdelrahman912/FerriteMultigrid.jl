@@ -1,5 +1,29 @@
 import FerriteMultigrid: init, AMGCoarseSolver
 
+@testset "Configuration Parameters" begin
+    # config: Galerikn and DirectProjection
+    config = pmultigrid_config()
+    @test config.coarse_strategy isa Galerkin
+    @test config.proj_strategy isa DirectProjection
+
+    # config: Rediscretization and DirectProjection
+    cofig = pmultigrid_config(coarse_strategy=Rediscretization(DiffusionMultigrid(1.0)))
+    @test cofig.coarse_strategy isa Rediscretization
+    @test cofig.proj_strategy isa DirectProjection
+
+    # config: Galerikn and StepProjection
+    config = pmultigrid_config(proj_strategy=StepProjection(1))
+    @test config.coarse_strategy isa Galerkin
+    @test config.proj_strategy isa StepProjection
+
+    # config: Rediscretization and StepProjection
+    config = pmultigrid_config(coarse_strategy=Rediscretization(DiffusionMultigrid(1.0)), proj_strategy=StepProjection(1))
+    @test config.coarse_strategy isa Rediscretization
+    @test config.proj_strategy isa StepProjection
+
+end
+
+
 @testset "MultiLevel Parameters" begin
     K, f, fe_space = poisson(3, 2, 3)
     ## SA-AMG as coarse solver

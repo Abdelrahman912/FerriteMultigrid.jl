@@ -36,7 +36,6 @@ export
     FESpace,
     DiffusionMultigrid, 
     ConstantCoefficient, 
-    PMultigridConfiguration, 
     Galerkin,
     Rediscretization, 
     DirectProjection, 
