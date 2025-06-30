@@ -9,15 +9,17 @@
     for config in configs
         K, f, fe_space = poisson(1000, 2, 3)
         # 1. default configuration
-        x, res = solve(K, f, fe_space,config)
+        x, res = solve(K, f, fe_space,config; log=true, rtol = 1e-10)
+        println("final residual at iteration ", length(res), ": ", res[end])
         @test K * x ≈ f
     end
 
-    ## 2D Poisson equation example ##
+    # 2D Poisson equation example ##
     for config in configs
         K, f, fe_space = poisson((100,100), 2, 3)
         # 1. default configuration
-        x, res = solve(K, f, fe_space,config)
+        x, res = solve(K, f, fe_space, config; log=true, rtol = 1e-10)
+        println("final residual at iteration ", length(res), ": ", res[end])
         @test K * x ≈ f
     end
 end
