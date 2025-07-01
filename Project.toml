@@ -13,7 +13,7 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
-AlgebraicMultigrid = "1"
+AlgebraicMultigrid = "1.1.0"
 CommonSolve = "0.2.4"
 Ferrite = "1"
 LinearAlgebra = "1"

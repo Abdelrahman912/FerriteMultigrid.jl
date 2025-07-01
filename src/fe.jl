@@ -36,9 +36,15 @@ function coarsen_order(fe_space::FESpace, p::Int)
     return FESpace(coarse_dh, coarse_cv,coarse_ch)
 end
 
-function _new_coarse_ip(ip::Interpolation, p::Int)
+function _new_coarse_ip(ip::ScalarInterpolation, p::Int)
     T = typeof(ip)
     BasisFunction = T.name.wrapper  #TODO: all basis functions have the same construction structure?
     RefShape = T.parameters[1]
     return BasisFunction{RefShape,p}()
+end
+
+# TODO: more robust
+function _new_coarse_ip(::VectorizedInterpolation{vdim, refshape, order, SI}, p::Int) where {vdim, refshape, order, SI <: ScalarInterpolation{refshape, order}}
+    BasisFunction = SI.name.wrapper  #TODO: all basis functions have the same construction structure?
+    return BasisFunction{refshape,p}()^vdim
 end
