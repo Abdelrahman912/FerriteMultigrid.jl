@@ -24,3 +24,10 @@
     end
 end
 
+module TestLinearElasticityExample
+    mktempdir() do dir
+        cd(dir) do
+            include(joinpath(@__DIR__, "../docs/src/literate-tutorials/linear_elasticity.jl"))
+        end
+    end
+end

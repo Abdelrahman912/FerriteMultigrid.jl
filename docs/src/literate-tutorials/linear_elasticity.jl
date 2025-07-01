@@ -145,4 +145,8 @@ config = pmultigrid_config()
 x, res = solve(K, f,fe_space, config;B = B, log=true, rtol = 1e-10)
 
 using Test
-@test K*x ≈ f
+
+@testset "Linear Elasticity Example" begin
+    println("final residual at iteration ", length(res), ": ", res[end])
+    @test K * x ≈ f
+end
