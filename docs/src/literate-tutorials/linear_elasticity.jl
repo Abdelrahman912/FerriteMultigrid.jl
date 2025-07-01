@@ -87,7 +87,7 @@ function create_nns(dh)
     return B
 end
 
-function linear_elasticity_2d()
+function linear_elasticity_2d(C)
     # Example test: https://ferrite-fem.github.io/Ferrite.jl/stable/tutorials/linear_elasticity/
     logo_mesh = "logo.geo"
     asset_url = "https://raw.githubusercontent.com/Ferrite-FEM/Ferrite.jl/gh-pages/assets/"
@@ -119,13 +119,7 @@ function linear_elasticity_2d()
     close!(ch)
 
     traction(x) = Vec(0.0, 20.0e3 * x[1])
-    Emod = 200.0e3 # Young's modulus [MPa]
-    ν = 0.3        # Poisson's ratio [-]
-
-    Gmod = Emod / (2(1 + ν))  # Shear modulus
-    Kmod = Emod / (3(1 - 2ν)) # Bulk modulus
-
-    C = gradient(ϵ -> 2 * Gmod * dev(ϵ) + 3 * Kmod * vol(ϵ), zero(SymmetricTensor{2,2}))
+    
     A = allocate_matrix(dh)
     assemble_global!(A, dh, cellvalues, C)
 
@@ -140,13 +134,32 @@ function linear_elasticity_2d()
     return A, b, fe_space, B # return the assembled matrix, force vector, and NNS matrix
 end
 
-K, f, fe_space, B = linear_elasticity_2d();
-config = pmultigrid_config()
-x, res = solve(K, f,fe_space, config;B = B, log=true, rtol = 1e-10)
+
+Emod = 200.0e3 # Young's modulus [MPa]
+ν = 0.3        # Poisson's ratio [-]
+
+Gmod = Emod / (2(1 + ν))  # Shear modulus
+Kmod = Emod / (3(1 - 2ν)) # Bulk modulus
+
+C = gradient(ϵ -> 2 * Gmod * dev(ϵ) + 3 * Kmod * vol(ϵ), zero(SymmetricTensor{2,2}))
+
+K, f, fe_space, B = linear_elasticity_2d(C);
+
+## Galerkin Coarsening Strategy
+config_gal = pmultigrid_config(coarse_strategy = Galerkin())
+x_gal, res_gal = solve(K, f,fe_space, config_gal;B = B, log=true, rtol = 1e-10)
+
+## Rediscretization Coarsening Strategy
+config_red = pmultigrid_config(coarse_strategy = Rediscretization(LinearElasticityMultigrid(C)))
+x_red, res_red = solve(K, f, fe_space, config_red; B = B, log=true, rtol = 1e-10)
+
 
 using Test
 
 @testset "Linear Elasticity Example" begin
-    println("final residual at iteration ", length(res), ": ", res[end])
-    @test K * x ≈ f
+    println("Final residual with Galerkin coarsening: ", res_gal[end])
+    @test K * x_gal ≈ f
+
+    println("Final residual with Rediscretization coarsening: ", res_red[end])
+    @test K * x_red ≈ f
 end

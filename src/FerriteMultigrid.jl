@@ -35,6 +35,7 @@ include("precs.jl")
 export 
     FESpace,
     DiffusionMultigrid, 
+    LinearElasticityMultigrid,
     ConstantCoefficient, 
     Galerkin,
     Rediscretization, 
@@ -44,6 +45,7 @@ export
     RugeStubenCoarseSolver,
     pmultigrid_config,
     Pinv,
-    PMultigridPreconBuilder
+    PMultigridPreconBuilder,
+    AbstractCoefficient
 
 end
