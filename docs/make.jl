@@ -10,9 +10,13 @@ if liveserver
     @timeit dto "Revise.revise()" Revise.revise()
 end
 
-using Documenter, DocumenterCitations, FerriteMultigrid
+using Documenter, DocumenterCitations
 
 const is_ci = haskey(ENV, "GITHUB_ACTIONS")
+
+# Generate tutorials and how-to guides
+include("generate.jl")
+
 
 # bibtex_plugin = CitationBibliography(
 #     joinpath(@__DIR__, "src", "assets", "references.bib"),
@@ -28,8 +32,10 @@ const is_ci = haskey(ENV, "GITHUB_ACTIONS")
     draft = liveserver,
     pages = Any[
         "Home" => "index.md",
-        
-        ],
+        "Tutorials" => [
+            "tutorials/linear_elasticity.md",
+            ]
+        ]
     # plugins = [
     #     bibtex_plugin,
     # ]

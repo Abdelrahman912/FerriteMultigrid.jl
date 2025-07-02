@@ -54,6 +54,8 @@ function build_prolongator(fine_fespace::FESpace, coarse_fespace::FESpace)
     fine_ndofs = ndofs(fine_fespace)
     coarse_ndofs = ndofs(coarse_fespace)
     P = spzeros(fine_ndofs, coarse_ndofs)
+    row_contrib = zeros(Int, fine_ndofs)  # NEW: track contributions
+
     fine_nbasefuncs = getnbasefunctions(fine_fespace)
     coarse_nbasefuncs = getnbasefunctions(coarse_fespace)
     Pe = zeros(fine_nbasefuncs, coarse_nbasefuncs)
@@ -62,13 +64,26 @@ function build_prolongator(fine_fespace::FESpace, coarse_fespace::FESpace)
         reinit!(fine_fespace.cv, cell)
         reinit!(coarse_fespace.cv, cell)
         _element_prolongator!(Pe, Me, fine_fespace.cv, coarse_fespace.cv)
+        
+        fine_dofs = celldofs(cell)
+        coarse_dofs = celldofs(coarse_fespace.dh, cell.cellid)
+
         for i = 1:fine_nbasefuncs
+            global_i = fine_dofs[i]
+            row_contrib[global_i] += 1  # NEW: track how often each fine DOF is used
             for j = 1:coarse_nbasefuncs
-                P[celldofs(cell)[i], celldofs(coarse_fespace.dh, cell.cellid)[j]] +=
-                    Pe[i, j]
+                global_j = coarse_dofs[j]
+                P[global_i, global_j] += Pe[i, j]
             end
         end
     end
-    dropzeros!(P)  # Remove any zero entries to save memory
+    # Normalize the rows of P by how many times they were visited
+    for i in 1:fine_ndofs
+        if row_contrib[i] > 1
+            P[i, :] ./= row_contrib[i]
+        end
+    end
+
+    #dropzeros!(P) # we don't this, do we?
     return P
 end
