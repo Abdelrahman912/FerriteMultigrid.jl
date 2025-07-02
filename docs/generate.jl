@@ -21,6 +21,8 @@ LITERATE_OUT_DIRS = [
     #HOWTO_OUT,
 ]
 
+# Download some assets
+include("download_resources.jl")
 
 # Run Literate on all examples
 @timeit dto "Literate." for (IN, OUT) in zip(LITERATE_IN_DIRS, LITERATE_OUT_DIRS), program in readdir(IN; join = true)
