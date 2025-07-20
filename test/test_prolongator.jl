@@ -44,7 +44,9 @@ end
     dh_fine = DofHandler(grid)
     add!(dh_fine, :u, ip_fine)
     close!(dh_fine)
-    fine_fespace = FESpace(dh_fine, cv_fine)
+    ch_fine = ConstraintHandler(dh_fine)
+    close!(ch_fine)
+    fine_fespace = FESpace(dh_fine, cv_fine,ch_fine)
 
     # coarse space
     ip_coarse = Lagrange{RefLine,1}()
@@ -53,7 +55,9 @@ end
     dh_coarse = DofHandler(grid)
     add!(dh_coarse, :u, ip_coarse)
     close!(dh_coarse)
-    coarse_fespace = FESpace(dh_coarse, cv_coarse)
+    ch_coarse = ConstraintHandler(dh_coarse)
+    close!(ch_coarse)
+    coarse_fespace = FESpace(dh_coarse, cv_coarse, ch_coarse)
 
     # test element prolongator
     Pe = zeros(getnbasefunctions(cv_fine), getnbasefunctions(cv_coarse))
@@ -75,7 +79,7 @@ end
     # Prolongator
     I = [1, 2, 3, 3, 4, 5, 5, 6, 7, 7];
     J = [1, 2, 1, 2, 3, 2, 3, 4, 3, 4];
-    V = [1, 2, 0.5, 0.5, 2, 0.5, 0.5, 1, 0.5, 0.5];
+    V = [1, 1, 0.5, 0.5, 1, 0.5, 0.5, 1, 0.5, 0.5];
     P_expected = sparse(I, J, V)
     @test P ≈ P_expected
 end
