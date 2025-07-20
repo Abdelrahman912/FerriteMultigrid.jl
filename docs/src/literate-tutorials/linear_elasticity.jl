@@ -186,21 +186,21 @@ fe_space = FESpace(dh, cellvalues, ch)
 
 # #### 1. Galerkin Coarsening Strategy
 config_gal = pmultigrid_config(coarse_strategy = Galerkin())
-x_gal, res_gal = solve(K, f,fe_space, config_gal;B = B, log=true, rtol = 1e-10)
+x_gal, res_gal = solve(A, b,fe_space, config_gal;B = B, log=true, rtol = 1e-10)
 
 # #### 2. Rediscretization Coarsening Strategy
 ## Rediscretization Coarsening Strategy
 config_red = pmultigrid_config(coarse_strategy = Rediscretization(LinearElasticityMultigrid(C)))
-x_red, res_red = solve(K, f, fe_space, config_red; B = B, log=true, rtol = 1e-10)
+x_red, res_red = solve(A, b, fe_space, config_red; B = B, log=true, rtol = 1e-10)
 
 
 # ### Test the solution
 using Test
 @testset "Linear Elasticity Example" begin
     println("Final residual with Galerkin coarsening: ", res_gal[end])
-    @test K * x_gal ≈ f
+    @test A * x_gal ≈ b
     println("Final residual with Rediscretization coarsening: ", res_red[end])
-    @test K * x_red ≈ f
+    @test A * x_red ≈ b
 end                                                                                                                       
 
 
