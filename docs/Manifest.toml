@@ -2,7 +2,7 @@
 
 julia_version = "1.11.3"
 manifest_format = "2.0"
-project_hash = "7a7d1cdc52645005cfd6782bc30af1273195f341"
+project_hash = "1d194a1ffe68c9ef29c6fca987a164c6dc3a5e21"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "be7ae030256b8ef14a441726c4c37766b90b93a3"
@@ -371,7 +371,7 @@ uuid = "4f95f4f8-b27c-4ae5-9a39-ea55e634e36b"
 version = "1.2.1"
 
 [[deps.FerriteMultigrid]]
-deps = ["AlgebraicMultigrid", "CommonSolve", "Ferrite", "LinearAlgebra", "LinearSolve", "Reexport", "SparseArrays"]
+deps = ["AlgebraicMultigrid", "CommonSolve", "Ferrite", "FerriteGmsh", "LinearAlgebra", "LinearSolve", "Reexport", "SparseArrays"]
 path = ".."
 uuid = "69a0a054-a29c-4d77-8818-cd7ec12cfcdc"
 version = "1.0.0-DEV"
