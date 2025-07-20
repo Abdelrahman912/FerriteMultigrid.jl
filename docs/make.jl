@@ -18,14 +18,17 @@ const is_ci = haskey(ENV, "GITHUB_ACTIONS")
 include("generate.jl")
 
 
-# bibtex_plugin = CitationBibliography(
-#     joinpath(@__DIR__, "src", "assets", "references.bib"),
-#     style=:numeric
-# )
+bibtex_plugin = CitationBibliography(
+    joinpath(@__DIR__, "src", "assets", "references.bib"),
+    style=:numeric
+)
 
 # Build documentation.
 @timeit dto "makedocs" makedocs(
-    format = Documenter.HTML(),
+    format = Documenter.HTML(
+        assets =["assets/citations.css",
+        "assets/custom.css"]
+    ),
     sitename = "FerriteMultigrid.jl",
     doctest = false,
     warnonly = true,
@@ -34,11 +37,12 @@ include("generate.jl")
         "Home" => "index.md",
         "Tutorials" => [
             "tutorials/linear_elasticity.md",
-            ]
-        ]
-    # plugins = [
-    #     bibtex_plugin,
-    # ]
+            ],
+        "references.md",
+        ],
+    plugins = [
+        bibtex_plugin,
+    ]
 )
 
 # Deploy built documentation (only if not liveserver)

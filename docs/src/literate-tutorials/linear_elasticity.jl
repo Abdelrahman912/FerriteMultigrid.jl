@@ -9,13 +9,23 @@
 #
 #
 # ## Implementation
-# The following code is the same as the code in the [Linear Elasticity](https://ferrite-fem.github.io/Ferrite.jl/stable/tutorials/linear_elasticity/) tutorial of the Ferrite.jl documentation, but with some comments removed for clarity.
-# with two nuances:
-# 1. Use of second order `Lagrange` shape functions for field approximation ⇒ `ip = Lagrange{RefTriangle,2}()^2`
-# 2. Use 4 quadrature points to accomadate the second order shape functions ⇒ `qr = QuadratureRule{RefTriangle}(4)`
+
+# The following code is based on the [Linear Elasticity](https://ferrite-fem.github.io/Ferrite.jl/stable/tutorials/linear_elasticity/) tutorial from the Ferrite.jl documentation, with some comments removed for brevity.
+# There are two main modifications:
+#
+# 1. Second-order `Lagrange` shape functions are used for field approximation: `ip = Lagrange{RefTriangle,2}()^2`.
+# 2. Four quadrature points are used to accommodate the second-order shape functions: `qr = QuadratureRule{RefTriangle}(4)`.
+#
 using Ferrite, FerriteGmsh, SparseArrays
 using Downloads: download
 
+Emod = 200.0e3 # Young's modulus [MPa]
+ν = 0.3        # Poisson's ratio [-]
+
+Gmod = Emod / (2(1 + ν))  # Shear modulus
+Kmod = Emod / (3(1 - 2ν)) # Bulk modulus
+
+C = gradient(ϵ -> 2 * Gmod * dev(ϵ) + 3 * Kmod * vol(ϵ), zero(SymmetricTensor{2,2}))
 
 function assemble_external_forces!(f_ext, dh, facetset, facetvalues, prescribed_traction)
     ## Create a temporary array for the facet's local contributions to the external force vector
@@ -123,8 +133,20 @@ function linear_elasticity_2d(C)
 end
 
 
-# ### Near Null Space
-# Near Null Space (NNS) matrix for linear elasticity
+# ### Near Null Space (NNS)
+# 
+# In multigrid methods for problems with vector-valued unknowns, such as linear elasticity, 
+# the near null space represents the low energy mode or the smooth error that needs to be captured
+# in the coarser grid when using SA-AMG (Smoothed Aggregation Algebraic Multigrid), more on the topic
+# can be found  in [schroder2010](@citet).
+
+# For 2D linear elasticity problems, the rigid body modes are:
+# 1. Translation in the x-direction,
+# 2. Translation in the y-direction,
+# 3. Rotation about the z-axis (i.e., $x_3$): each point (x, y) is mapped to (-y, x).
+#
+# The function `create_nns` constructs the NNS matrix `B ∈ ℝ^{n × 3}`, where `n` is the number of degrees of freedom (DOFs)
+# for the case of `p` = 1 (i.e., linear interpolation), because `B` is only relevant for AMG. 
 function create_nns(dh)
     ##Ndof = ndofs(dh)
     grid = dh.grid
@@ -143,39 +165,43 @@ function create_nns(dh)
 end
 
 
-
+# ### Setup the linear elasticity problem
+# Load `FerriteMultigrid` to access the p-multigrid solver.
 using FerriteMultigrid
-Emod = 200.0e3 # Young's modulus [MPa]
-ν = 0.3        # Poisson's ratio [-]
-
-Gmod = Emod / (2(1 + ν))  # Shear modulus
-Kmod = Emod / (3(1 - 2ν)) # Bulk modulus
-
-C = gradient(ϵ -> 2 * Gmod * dev(ϵ) + 3 * Kmod * vol(ϵ), zero(SymmetricTensor{2,2}))
-
+# Construct the linear elasticity problem with 2nd order polynomial shape functions.
 A, b, dh, cellvalues, ch = linear_elasticity_2d(C);
+# Construct the near null space (NNS) matrix
 B = create_nns(dh)
+
+
+
+# !!! danger
+#     Since NNS matrix is only relevant for AMG, and it is not used in the p-multigrid solver, therefore, `B` has to provided using linear field approximation (i.e., `p = 1`) when using AMG as the coarse solver, otherwise (e.g., using `Pinv` as the coarse solver), then we don't have to provide it.
+
+# Construct the finite element space $\mathcal{V}_{h,p = 2}$
 fe_space = FESpace(dh, cellvalues, ch)
 
 
-## Galerkin Coarsening Strategy
+# ### P-multigrid Configuration
+
+# #### 1. Galerkin Coarsening Strategy
 config_gal = pmultigrid_config(coarse_strategy = Galerkin())
 x_gal, res_gal = solve(K, f,fe_space, config_gal;B = B, log=true, rtol = 1e-10)
 
+# #### 2. Rediscretization Coarsening Strategy
 ## Rediscretization Coarsening Strategy
 config_red = pmultigrid_config(coarse_strategy = Rediscretization(LinearElasticityMultigrid(C)))
 x_red, res_red = solve(K, f, fe_space, config_red; B = B, log=true, rtol = 1e-10)
 
 
+# ### Test the solution
 using Test
-
 @testset "Linear Elasticity Example" begin
     println("Final residual with Galerkin coarsening: ", res_gal[end])
     @test K * x_gal ≈ f
-
     println("Final residual with Rediscretization coarsening: ", res_red[end])
     @test K * x_red ≈ f
-end
+end                                                                                                                       
 
 
 
