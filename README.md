@@ -27,4 +27,4 @@ x, res = solve(K, f, fe_space, config; log = true, rtol = 1e-10)
 ## Acknowledgement
 
 This framework is primarily developed at the [chair of continuum mechanics at Ruhr University Bochum](https://www.lkm.ruhr-uni-bochum.de/) under 
-the supervision of @termi-official.
+the supervision of [@termi-official](https://github.com/termi-official).
