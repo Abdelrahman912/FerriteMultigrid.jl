@@ -1,7 +1,7 @@
 name = "FerriteMultigrid"
 uuid = "69a0a054-a29c-4d77-8818-cd7ec12cfcdc"
 authors = ["Abdelrahman F. Abdelrahman"]
-version = "1.0.0-DEV"
+version = "1.0.0"
 
 [deps]
 AlgebraicMultigrid = "2169fc97-5a83-5252-b627-83903c6c433c"
