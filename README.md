@@ -1,7 +1,6 @@
 # FerriteMultigrid.jl
 
-[![Build Status](https://github.com/abdelrahman912/FerriteMultigrid.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/abdelrahman912/FerriteMultigrid.jl/actions/workflows/CI.yml?query=branch%3Amaster)
-[![Coverage](https://codecov.io/gh/abdelrahman912/FerriteMultigrid.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/abdelrahman912/FerriteMultigrid.jl)
+[![Build Status](https://github.com/abdelrahman912/FerriteMultigrid.jl/actions)](https://github.com/abdelrahman912/FerriteMultigrid.jl/actions)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://abdelrahman912.github.io/FerriteMultigrid.jl/dev/)
 
 
