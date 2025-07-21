@@ -1,6 +1,6 @@
 # FerriteMultigrid.jl
 
-[![Build Status](https://github.com/abdelrahman912/FerriteMultigrid.jl/actions)](https://github.com/abdelrahman912/FerriteMultigrid.jl/actions)
+[![Build Status](https://github.com/abdelrahman912/FerriteMultigrid.jl/workflows/CI/badge.svg)](https://github.com/abdelrahman912/FerriteMultigrid.jl/actions)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://abdelrahman912.github.io/FerriteMultigrid.jl/dev/)
 
 
