@@ -10,7 +10,7 @@ if liveserver
     @timeit dto "Revise.revise()" Revise.revise()
 end
 
-using Documenter, DocumenterCitations
+using Documenter, DocumenterCitations, FerriteMultigrid
 
 const is_ci = haskey(ENV, "GITHUB_ACTIONS")
 
@@ -38,6 +38,10 @@ bibtex_plugin = CitationBibliography(
         "Tutorials" => [
             "tutorials/linear_elasticity.md",
             ],
+        "API Reference" => ["api-reference/fe.md",
+                             "api-reference/multigrid_problems.md",
+                             "api-reference/multilevel.md",
+                             "api-reference/pmg_config.md",],
         "references.md",
         ],
     plugins = [

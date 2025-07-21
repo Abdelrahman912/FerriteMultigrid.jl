@@ -1,13 +1,44 @@
 ## defines how we obtain A operator for the coarse grid
 abstract type AbstractCoarseningStrategy end
+
+@doc raw"""
+    Galerkin <: AbstractCoarseningStrategy
+Galerkin coarsening operator can be defined as follows:
+```math
+A_{h,p-1} = \mathcal{I}_{p}^{p-1} A_{h,p} \mathcal{I}_{p-1}^p
+```
+and according to [tielen2020](@citet) $\mathcal{I}_{p-1}^p$ is the interpolation operator from the coarse space to the fine space
+and is defined as follows:
+
+```math
+\mathcal{I}_{p-1}^p (\mathbf{v}_{p-1}) = (\mathbf{M}_p)^{-1} \mathbf{P}_{p-1}^p \, \mathbf{v}_{p-1}
+```
+"""
 struct Galerkin <: AbstractCoarseningStrategy end
+
+"""
+    Rediscretization{TP <: AbstractPMultigrid} <: AbstractCoarseningStrategy
+This struct represents a coarsening strategy that uses the `assemble` function to obtain the coarse grid operator.
+It is used when the `Rediscretization` strategy is specified in the `pmultigrid_config`. It requires the problem type `TP` to be a subtype of [`AbstractPMultigrid`](@ref).
+"""
 struct Rediscretization{TP <: AbstractPMultigrid} <: AbstractCoarseningStrategy
     problem::TP
 end
 
 ## defines how we project from fine to coarse grid
 abstract type AbstractProjectionStrategy end
+
+@doc raw"""
+    DirectProjection <: AbstractProjectionStrategy
+This struct represents a direct projection from $\mathcal{V}_{h,p}$ to $\mathcal{V}_{h,p=1}$. 
+"""
 struct DirectProjection <: AbstractProjectionStrategy end
+    
+@doc raw"""
+    StepProjection <: AbstractProjectionStrategy
+This struct represents a projection from $\mathcal{V}_{h,p}$ to $\mathcal{V}_{h,p-step}$, where `step` is a positive integer.
+It is used to reduce the polynomial order by a fixed step size until `p = 1`.
+"""    
 struct StepProjection <: AbstractProjectionStrategy 
     step::Int
     function StepProjection(step::Int)
@@ -16,11 +47,20 @@ struct StepProjection <: AbstractProjectionStrategy
     end
 end
 
+"""
+    PMultigridConfiguration{TC<:AbstractCoarseningStrategy, TP<:AbstractProjectionStrategy}
+This struct represents the configuration for the polynomial multigrid method.
+"""
 struct PMultigridConfiguration{TC<:AbstractCoarseningStrategy, TP<:AbstractProjectionStrategy}
     coarse_strategy::TC # coarsening strategy
     proj_strategy::TP # projection strategy
 end
 
+
+"""
+    pmultigrid_config(;coarse_strategy = Galerkin(), proj_strategy = DirectProjection())
+This function is the main api to instantiate [`PMultigridConfiguration`](@ref).
+"""
 pmultigrid_config(;coarse_strategy = Galerkin(), proj_strategy = DirectProjection()) = PMultigridConfiguration(coarse_strategy, proj_strategy)
 
 function pmultigrid(

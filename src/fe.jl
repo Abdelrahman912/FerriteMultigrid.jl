@@ -1,5 +1,14 @@
-## This file encompasses all the finite element internals required for P-Multigrid
-struct FESpace{DH<:AbstractDofHandler,CV<:AbstractCellValues,CH <: ConstraintHandler}
+"""
+    FESpace{DH<:AbstractDofHandler, CV<:AbstractCellValues, CH<:ConstraintHandler}
+
+A structure that encapsulates the finite element space.
+
+# Fields
+- `dh::DH`: [Degree-of-freedom handler](https://ferrite-fem.github.io/Ferrite.jl/stable/reference/dofhandler/#Degrees-of-freedom) 
+- `cv::CV`: [Cell values](https://ferrite-fem.github.io/Ferrite.jl/stable/reference/fevalues/#Main-types)
+- `ch::CH`: [Constraint handler](https://ferrite-fem.github.io/Ferrite.jl/stable/reference/fevalues/#Main-types).
+"""
+struct FESpace{DH<:AbstractDofHandler,CV<:AbstractCellValues,CH<:ConstraintHandler}
     dh::DH
     cv::CV
     ch::CH

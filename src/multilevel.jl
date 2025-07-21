@@ -44,6 +44,19 @@ function (amg::AMGCoarseSolver)(x::Vector, b::Vector)
     end
 end
 
+"""
+    solve(A::AbstractMatrix, b::Vector, fe_space::FESpace, pgrid_config::PMultigridConfiguration = pmultigrid_config(), pcoarse_solvertype::Type{<:CoarseSolver} = SmoothedAggregationCoarseSolver, args...; kwargs...)
+This function solves the linear system `Ax = b` using polynomial multigrid methods with a coarse solver of type `pcoarse_solvertype`.
+
+# Fields
+- `A`: The system matrix.
+- `b`: The right-hand side vector.
+- `fe_space`: See [`FESpace`](@ref) for details on the finite element space.   
+- `pgrid_config`: Configuration for the polynomial multigrid method, see [`PMultigridConfiguration`](@ref) for details.
+- `pcoarse_solvertype`: The type of coarse solver to use (e.g., `SmoothedAggregationCoarseSolver`, `Pinv`).
+- `args...`: Additional arguments for the coarse solver.
+- `kwargs...`: Additional keyword arguments for the coarse solver.
+"""
 function solve(A::AbstractMatrix, b::Vector, fe_space::FESpace, pgrid_config::PMultigridConfiguration = pmultigrid_config(), pcoarse_solvertype::Type{<:CoarseSolver} = SmoothedAggregationCoarseSolver, args...; kwargs...)
     solver = init(A, b, fe_space, pgrid_config, pcoarse_solvertype, args...; kwargs...)
     solve!(solver, args...; kwargs...)

@@ -34,6 +34,8 @@ include("precs.jl")
 
 export 
     FESpace,
+    AbstractPMultigrid,
+    assemble,
     DiffusionMultigrid, 
     LinearElasticityMultigrid,
     ConstantCoefficient, 

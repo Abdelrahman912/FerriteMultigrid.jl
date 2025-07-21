@@ -1,8 +1,17 @@
 # interface for multigrid problems
 # there will be ready to use implementations for some common problems,
 # however for new problems, this interface should be implemented
+
+"""
+    abstract type AbstractPMultigrid
+This is an abstract type that can be extended to when `Rediscretization` strategy is used as coarsening strategy, otherwise it's not required.
+"""
 abstract type AbstractPMultigrid end
 
+"""
+    assemble(problem::AbstractPMultigrid, fe_space::FESpace)
+The interface that needs to be implemented to define the `Rediscretization` strategy for a specific problem type.
+"""
 function assemble(problem::AbstractPMultigrid, ::FESpace)
     # this is an interface that should be defined for each specific problem type
     # This function should be implemented in the specific problem type
@@ -27,6 +36,11 @@ function *(x::Real, c::ConstantCoefficient)
     return x * c.K
 end
 
+
+"""
+    DiffusionMultigrid{C} <: AbstractPMultigrid
+This struct represents a multigrid problem for diffusion equations with a coefficient `C`.
+"""
 struct DiffusionMultigrid{C} <: AbstractPMultigrid
     coeff::C
 end
@@ -80,6 +94,10 @@ end
 ## Linear Elasticity problem ##
 ###############################
 
+"""
+    LinearElasticityMultigrid{TC} <: AbstractPMultigrid
+This struct represents a multigrid problem for linear elasticity equations with a material stiffness tensor `TC
+"""
 struct LinearElasticityMultigrid{TC<: SymmetricTensor} <: AbstractPMultigrid
     ℂ:: TC # material stiffness tensor (4th order tensor)
 end
