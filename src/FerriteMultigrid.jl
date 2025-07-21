@@ -5,7 +5,7 @@ using LinearAlgebra
 import LinearSolve
 using SparseArrays
 import SparseArrays: AbstractSparseMatrixCSC
-@reexport import CommonSolve: solve, solve!, init
+#import CommonSolve: solve, solve!, init
 import Base: *
 
 using Ferrite
@@ -48,6 +48,6 @@ export
     pmultigrid_config,
     Pinv,
     PMultigridPreconBuilder,
-    AbstractCoefficient
-
+    AbstractCoefficient,
+    solve
 end
