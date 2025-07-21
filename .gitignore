@@ -33,5 +33,6 @@ Manifest.toml
 
 
 # Documenter files
-docs/src/tutorials
+docs/src/tutorials/*
+!docs/src/tutorials/index.md
 docs/src/howto

@@ -3,7 +3,6 @@ import FerriteMultigrid: _element_mass_matrix!, _element_prolongator!, build_pro
 using Test
 using Ferrite
 using SparseArrays
-using LinearSolve: solve, KrylovJL_CG, LinearProblem
 
 
 include("test_prolongator.jl")
