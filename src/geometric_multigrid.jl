@@ -216,7 +216,7 @@ function build_geometric_prolongator(
     # FIXME multi-field support
     @assert length(dh_fine.field_names) == 1 "Multiple fields not yet supported"
     integrator = NestedNodalProlongatorIntegrator(field_name)
-    strategy   = SequentialAssemblyStrategy(SequentialCPUDevice())
+    strategy   = AssemblyStrategy(SequentialCPUDevice())
 
     op = setup_nested_transfer_operator(strategy, integrator,
                                         dh_fine, dh_coarse, fine2coarse, child_ref_coords)

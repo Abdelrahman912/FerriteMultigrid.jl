@@ -64,7 +64,7 @@ function build_prolongator(
     # FIXME multi-field support
     @assert length(fine_dh.field_names) == 1 "Multiple fields not yet supported"
     integrator  = PolynomialProlongationIntegrator(field_name)
-    strategy    = SequentialAssemblyStrategy(SequentialCPUDevice())
+    strategy    = AssemblyStrategy(SequentialCPUDevice())
 
     op = @timeit_debug "setup transfer operator" setup_transfer_operator(strategy, integrator, fine_dh, coarse_dh)
     @timeit_debug "assemble transfer operator" update_operator!(op, nothing)

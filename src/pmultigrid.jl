@@ -45,7 +45,7 @@ Coarsening strategy that re-assembles the operator on the coarse grid using Ferr
 
 # Fields
 - `integrator::TI` – an `AbstractBilinearIntegrator` (e.g. `DiffusionMultigrid`)
-- `strategy::TS`   – an `AbstractAssemblyStrategy` (default: `SequentialAssemblyStrategy(SequentialCPUDevice())`)
+- `strategy::TS`   – an `AbstractAssemblyStrategy` (default: `AssemblyStrategy(SequentialCPUDevice())`)
 - `is_sym::Bool`   – whether the operator is symmetric (determines R = Pᵀ vs separate assembly)
 """
 struct Rediscretization{TI <: AbstractBilinearIntegrator, TS <: AbstractAssemblyStrategy} <: AbstractCoarseningStrategy
@@ -54,9 +54,9 @@ struct Rediscretization{TI <: AbstractBilinearIntegrator, TS <: AbstractAssembly
     is_sym::Bool
 end
 Rediscretization(integrator::AbstractBilinearIntegrator) =
-    Rediscretization(integrator, SequentialAssemblyStrategy(SequentialCPUDevice()), true)
+    Rediscretization(integrator, AssemblyStrategy(SequentialCPUDevice()), true)
 Rediscretization(integrator::AbstractBilinearIntegrator, is_sym::Bool) =
-    Rediscretization(integrator, SequentialAssemblyStrategy(SequentialCPUDevice()), is_sym)
+    Rediscretization(integrator, AssemblyStrategy(SequentialCPUDevice()), is_sym)
 
 ## defines how we project from fine to coarse grid - always one step to p=1
 

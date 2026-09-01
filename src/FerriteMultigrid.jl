@@ -36,7 +36,7 @@ import FerriteOperators:
     setup_transfer_operator, setup_nested_transfer_operator,
     SameGridCellIterator, NestedGridCellIterator,
     getrowdofs,
-    SequentialAssemblyStrategy, SequentialCPUDevice
+    AssemblyStrategy, SequentialCPUDevice
 import Ferrite: get_grid
 
 include("prolongator.jl")
