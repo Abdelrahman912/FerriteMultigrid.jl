@@ -82,10 +82,11 @@ A coarse solver builder that reuses the `LinearSolve` factorization cache across
 hierarchy rebuilds (e.g. Newton iterations on a fixed mesh).
 
 On the **first** call with a matrix `A`, a full symbolic + numeric factorization
-is performed.  On subsequent calls, `LinearSolve.reinit!` marks the cache as fresh
-with the new matrix, so only the numeric factorization is repeated.  This is
-particularly effective with `UMFPACKFactorization(reuse_symbolic=true)` (the default),
-which stores the UMFPACK fill-reducing permutation and symbolic LU across solves.
+is performed.  On subsequent calls, assigning `linsolve.A = A` triggers `LinearCache`'s
+`setproperty!`, which marks the cache fresh, so only the numeric factorization is
+repeated.  This is particularly effective with `UMFPACKFactorization(reuse_symbolic=true)`
+(the default), which stores the UMFPACK fill-reducing permutation and symbolic LU
+across solves.
 
 The sparsity pattern of the coarse matrix is guaranteed to be fixed for polynomial
 and geometric multigrid on a fixed mesh, so symbolic reuse is always valid here.
@@ -103,7 +104,7 @@ function (b::CachedLinearSolveCoarseSolverBuilder)(A::AbstractMatrix)
     if b.solver_ref[] === nothing
         rhs_tmp = zeros(eltype(A), size(A, 1))
         u_tmp   = zeros(eltype(A), size(A, 2))
-        linprob = LinearSolve.LinearProblem(A, rhs_tmp; u0 = u_tmp, alias_A = false, alias_b = false)
+        linprob = LinearSolve.LinearProblem(A, rhs_tmp; u0 = u_tmp)
         linsolve = LinearSolve.init(linprob, b.alg)
         b.solver_ref[] = CachedLinearCoarseSolver(linsolve)
     else
